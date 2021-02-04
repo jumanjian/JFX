@@ -16,7 +16,7 @@
                   BorderPane.alignment="CENTER">
          <ImageView fx:id="loginImageView" fitHeight="341.0" fitWidth="228.0" layoutY="86.0" pickOnBounds="true"
                     preserveRatio="true">
-            <Image url="@../../../../../../images/icon.jpg"/>
+            <Image url="@../../../../../../images/icon.jpg" backgroundLoading="true"/>
          </ImageView>
       </AnchorPane>
    </left>

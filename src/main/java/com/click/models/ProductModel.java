@@ -1,6 +1,8 @@
 package com.click.models;
 
+
 public class ProductModel {
+
     private Integer ProductID;
     private String ProductName;
     private Integer Inventory;

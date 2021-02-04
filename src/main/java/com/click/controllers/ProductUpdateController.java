@@ -1,8 +1,8 @@
 package com.click.controllers;
 
+import akka.actor.typed.ActorSystem;
 import com.click.models.DbConnection;
 import com.click.models.ProductModel;
-import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -17,9 +17,9 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.sql.*;
 import java.util.ResourceBundle;
@@ -54,16 +54,23 @@ public class ProductUpdateController implements Initializable {
     @FXML
     private TableColumn<ProductModel, Integer> inventoryColumn;
 
-
     @FXML
     private void buttonOnActionHandler(ActionEvent actionEvent) {
         if (actionEvent.getSource() == saveButton) {
             saveOperation();
-        }else if (actionEvent.getSource() == updateButton){
+        } else if (actionEvent.getSource() == updateButton) {
             updateOperation();
-        }else{
-            Stage stage =(Stage) clearButton.getScene().getWindow();
-            stage.close();
+        } else {
+            System.out.println("222");
+            //sendDisplayView();
+        }
+    }
+
+    public void sendDisplayView() {
+        try {
+            openShelfDisplayView();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -96,7 +103,7 @@ public class ProductUpdateController implements Initializable {
             ProductModel productModel;
             while (rs.next()) {
                 productModel = new ProductModel(rs.getInt("ProductID"), rs.getString("ProductName"),
-                         rs.getInt("OldPrice"), rs.getInt("NewPrice"), rs.getInt("Inventory"));
+                        rs.getInt("OldPrice"), rs.getInt("NewPrice"), rs.getInt("Inventory"));
                 productsList.add(productModel);
             }
         } catch (SQLException e) {
@@ -142,7 +149,7 @@ public class ProductUpdateController implements Initializable {
 
     private void updateOperation() {
         Connection con = DbConnection.connect();
-        String sql = "UPDATE Products SET  NewPrice = " + newPriceTextField.getText() + " , Inventory = '" + inventoryTextField + "' WHERE ProductName = '" + productNameTextField.getText()+ "'";
+        String sql = "UPDATE Products SET  NewPrice = " + newPriceTextField.getText() + " , Inventory = '" + inventoryTextField + "' WHERE ProductName = '" + productNameTextField.getText() + "'";
         PreparedStatement ps;
         try {
             ps = con.prepareStatement(sql);
@@ -151,5 +158,18 @@ public class ProductUpdateController implements Initializable {
             e.printStackTrace();
         }
         showProducts();
+    }
+
+    @FXML
+    private void openShelfDisplayView() throws IOException {
+        Stage shelfDisplayStage = new Stage();
+        Parent root = FXMLLoader.load(getClass().getResource("shelfDisplay.fxml"));
+        shelfDisplayStage.setScene(new Scene(root, 800, 600));
+        File loginImageFile = new File("images/icon.jpg");
+        Image icon = new Image(loginImageFile.toURI().toString());
+        shelfDisplayStage.getIcons().add(icon);
+        shelfDisplayStage.show();
+        Stage stage = (Stage) clearButton.getScene().getWindow();
+        stage.close();
     }
 }

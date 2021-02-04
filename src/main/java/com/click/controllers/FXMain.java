@@ -11,7 +11,7 @@ import javafx.stage.StageStyle;
 
 import java.io.File;
 /*
-public class Main {
+public class TerminalMain {
     public static void main(String[] args) {
         //LoginScreen loginScreen= new LoginScreen();
         //loginScreen.start(null);
@@ -21,7 +21,7 @@ public class Main {
 
 }*/
 
-public class Main extends Application{
+public class FXMain extends Application{
     public static void main(String[] args) {
        launch(args);
     }

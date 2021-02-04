@@ -35,7 +35,6 @@ import java.sql.SQLException;
 import java.util.ResourceBundle;
 
 public class LoginController implements Initializable {
-
     @FXML
     private Button cancelButton;
     @FXML
@@ -95,15 +94,14 @@ public class LoginController implements Initializable {
             }
             if (count == 1) {
                 try {
-                    //loginMessageLabel.setText("You attempted to login!");
                     openProductsUpdateView();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             } else if (count > 1) {
-                loginMessageLabel.setText("Wrong username or password!");
-            } else {
                 loginMessageLabel.setText("Something's wrong. Duplicate data!");
+            } else {
+                loginMessageLabel.setText("Wrong username or password!");
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -119,35 +117,3 @@ public class LoginController implements Initializable {
         }
     }
 }
-    /*public static class Messenger extends AbstractBehavior<Messenger.Command>{
-
-        public Messenger(ActorContext<Messenger.Command> context) {
-            super(context);
-        }
-        public static Behavior<Messenger.Command> create() {
-            return Behaviors.setup(Messenger::new);
-        }
-        @Override
-        public Receive<Messenger.Command> createReceive() {
-            return newReceiveBuilder()
-                    .onMessage(Messenger.InitialCommand.class, command -> {
-                        ActorSystem<LoginActor.Command> userLogin = ActorSystem.create(LoginActor.create(), "LoginActor");
-                        userLogin.tell(new LoginActor.LoginDetailsCommand());
-                        return this;
-                    })
-                    .build();
-        }
-        public interface Command extends Serializable {
-        }
-
-        public static class InitialCommand implements Messenger.Command {
-            private static final long serialVersionUID = 1L;
-        }*/
-
-
-
-
-
-
-
-

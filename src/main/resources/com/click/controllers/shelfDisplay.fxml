@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.text.Font?>
+
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.click.controllers.ShelfDisplayController">
+   <center>
+      <AnchorPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+         <children>
+            <Label layoutX="147.0" layoutY="82.0" prefHeight="18.0" prefWidth="88.0" text="Was" textFill="RED">
+               <font>
+                  <Font name="Segoe UI Italic" size="36.0" />
+               </font>
+            </Label>
+            <Label alignment="CENTER" contentDisplay="CENTER" layoutX="281.0" layoutY="82.0" prefHeight="18.0" prefWidth="88.0" text="Ksh" textFill="RED">
+               <font>
+                  <Font name="Segoe UI Italic" size="36.0" />
+               </font>
+            </Label>
+            <Label fx:id="oldPriceDisplayLabel" layoutX="370.0" layoutY="82.0" prefHeight="18.0" prefWidth="88.0" text="300" textFill="RED">
+               <font>
+                  <Font name="Segoe UI Italic" size="36.0" />
+               </font>
+            </Label>
+            <Label layoutX="87.0" layoutY="168.0" prefHeight="78.0" prefWidth="148.0" text="Now" textFill="#12c006">
+               <font>
+                  <Font name="Segoe UI Italic" size="64.0" />
+               </font>
+            </Label>
+            <Label alignment="CENTER" contentDisplay="CENTER" layoutX="234.0" layoutY="168.0" prefHeight="78.0" prefWidth="131.0" text="Ksh" textFill="#12c006">
+               <font>
+                  <Font name="Segoe UI Italic" size="64.0" />
+               </font>
+            </Label>
+            <Label fx:id="newPriceDisplayLabel" layoutX="370.0" layoutY="168.0" prefHeight="78.0" prefWidth="132.0" text="250" textFill="#12c006">
+               <font>
+                  <Font name="Segoe UI Italic" size="64.0" />
+               </font>
+            </Label>
+         </children>
+      </AnchorPane>
+   </center>
+</BorderPane>
