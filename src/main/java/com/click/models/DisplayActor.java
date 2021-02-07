@@ -1,14 +1,19 @@
 package com.click.models;
 
+import akka.actor.typed.ActorRef;
 import akka.actor.typed.Behavior;
 import akka.actor.typed.javadsl.AbstractBehavior;
 import akka.actor.typed.javadsl.ActorContext;
 import akka.actor.typed.javadsl.Behaviors;
 import akka.actor.typed.javadsl.Receive;
+import com.click.controllers.ControlActor;
+import org.apache.commons.collections.MultiMap;
 
 import javax.swing.*;
 import java.awt.*;
 import java.io.Serializable;
+import java.lang.reflect.Array;
+import java.util.Random;
 
 public class DisplayActor extends AbstractBehavior<DisplayActor.Command> {
     private JPanel mainPanel;
@@ -42,10 +47,17 @@ public class DisplayActor extends AbstractBehavior<DisplayActor.Command> {
     public Receive<DisplayActor.Command> createReceive() {
         return newReceiveBuilder()
                 .onMessage(NewPriceCommand.class, command -> {
+                    /*Random r = new Random();
+                    if (r.nextInt(1) == 1 ){
+
+                    }*/
                     displayFrame(command.getProductName());
-                    lblOldPrice.setText(lblNewPrice.getText());
-                    lblNewPrice.setText(String.valueOf(command.getNewPrice()));
+
+                    lblOldPrice.setText(command.getOldPrice().toString());
+                    lblNewPrice.setText(command.getNewPrice().toString());
                     lblProductName.setText(command.getProductName());
+                    command.getControl().tell(new ControlActor.DisplayActorReply(getContext().getSelf(),"Price Displayed Successfully"));
+                    getContext().getLog().debug("Display actor running");
                     return this;
                 })
                 .build();
@@ -56,29 +68,32 @@ public class DisplayActor extends AbstractBehavior<DisplayActor.Command> {
 
     public static class NewPriceCommand implements Command {
         private static final long serialVersionUID = 1L;
-        private final String productName;
-        private final int newPrice;
-        //private final int oldPrice;
+        private final ActorRef<ControlActor.Command> Control;
+        private final String ProductName;
+        private final Integer NewPrice;
+        private final Integer OldPrice;
 
-       /* public NewPriceCommand(String productName, int newPrice, int oldPrice) {
-            this.productName = productName;
-            this.newPrice = newPrice;
-            this.oldPrice = oldPrice;
-        }*/
+        public NewPriceCommand(ActorRef<ControlActor.Command> control, String productName, Integer newPrice, Integer oldPrice) {
+            Control = control;
+            ProductName = productName;
+            NewPrice = newPrice;
+            OldPrice = oldPrice;
+        }
 
-        public NewPriceCommand(String productName, int newPrice) {
-            this.productName = productName;
-            this.newPrice = newPrice;
+        public ActorRef<ControlActor.Command> getControl() {
+            return Control;
         }
 
         public String getProductName() {
-            return productName;
+            return ProductName;
         }
 
-        public int getNewPrice() {
-            return newPrice;
+        public Integer getNewPrice() {
+            return NewPrice;
         }
 
-        //public int getOldPrice() { return oldPrice; }
+        public Integer getOldPrice() {
+            return OldPrice;
+        }
     }
 }

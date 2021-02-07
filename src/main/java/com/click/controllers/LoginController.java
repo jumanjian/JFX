@@ -1,13 +1,6 @@
 package com.click.controllers;
 
-import akka.actor.typed.ActorSystem;
-import akka.actor.typed.Behavior;
-import akka.actor.typed.javadsl.AbstractBehavior;
-import akka.actor.typed.javadsl.ActorContext;
-import akka.actor.typed.javadsl.Behaviors;
-import akka.actor.typed.javadsl.Receive;
-import com.click.models.DbConnection;
-import javafx.application.Application;
+import com.click.models.DbConnectionActor;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -19,14 +12,10 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 
-import javax.jws.soap.SOAPBinding;
 import java.io.File;
 import java.io.IOException;
-import java.io.Serializable;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -79,7 +68,7 @@ public class LoginController implements Initializable {
     }
 
     public void validateLogin() {
-        Connection con = DbConnection.connect();
+        Connection con = DbConnectionActor.connect();
         PreparedStatement ps = null;
         ResultSet rs = null;
         try {

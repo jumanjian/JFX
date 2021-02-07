@@ -1,7 +1,8 @@
 package com.click.controllers;
 
 import akka.actor.typed.ActorSystem;
-import com.click.models.DbConnection;
+import akka.actor.typed.javadsl.AskPattern;
+import com.click.models.DbConnectionActor;
 import com.click.models.ProductModel;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -22,9 +23,14 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.*;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.ResourceBundle;
+import java.util.concurrent.CompletionStage;
 
 public class ProductUpdateController implements Initializable {
+    HashMap<String, ArrayList<Integer>> ProductPriceHash = new HashMap<>();
     @FXML
     private ImageView bannerImageView;
     @FXML
@@ -32,13 +38,15 @@ public class ProductUpdateController implements Initializable {
     @FXML
     private TextField newPriceTextField;
     @FXML
-    private TextField inventoryTextField;
+    private TextField oldPriceTextField;
     @FXML
-    private Button updateButton;
+    private TextField inventoryTextField;
     @FXML
     private Button saveButton;
     @FXML
-    private Button clearButton;
+    private Button updateButton;
+    @FXML
+    private Button editButton;
     @FXML
     private RadioButton isGlobalRadiobutton;
     @FXML
@@ -58,19 +66,10 @@ public class ProductUpdateController implements Initializable {
     private void buttonOnActionHandler(ActionEvent actionEvent) {
         if (actionEvent.getSource() == saveButton) {
             saveOperation();
+        } else if (actionEvent.getSource() == editButton) {
+            edit();
         } else if (actionEvent.getSource() == updateButton) {
-            updateOperation();
-        } else {
-            System.out.println("222");
-            //sendDisplayView();
-        }
-    }
-
-    public void sendDisplayView() {
-        try {
-            openShelfDisplayView();
-        } catch (IOException e) {
-            e.printStackTrace();
+            controlOperation();
         }
     }
 
@@ -78,6 +77,7 @@ public class ProductUpdateController implements Initializable {
     private void mouseOnClickedEvent(MouseEvent event) {
         ProductModel productModel = productsTableView.getSelectionModel().getSelectedItem();
         productNameTextField.setText(productModel.getProductName());
+        oldPriceTextField.setText("" + productModel.getOldPrice());
         newPriceTextField.setText("" + productModel.getNewPrice());
         inventoryTextField.setText("" + productModel.getInventory());
     }
@@ -92,11 +92,10 @@ public class ProductUpdateController implements Initializable {
 
     private ObservableList<ProductModel> getProductsList() {
         ObservableList<ProductModel> productsList = FXCollections.observableArrayList();
-        Connection con = DbConnection.connect();
+        Connection con = DbConnectionActor.connect();
         String sql = "SELECT * FROM Products";
         Statement st = null;
         ResultSet rs = null;
-
         try {
             st = con.createStatement();
             rs = st.executeQuery(sql);
@@ -134,9 +133,9 @@ public class ProductUpdateController implements Initializable {
     }
 
     private void saveOperation() {
-        Connection con = DbConnection.connect();
-        String sql = "INSERT INTO Products(ProductName, NewPrice, Inventory) VALUES('" + productNameTextField.getText()
-                + "','" + newPriceTextField.getText() + "','" + inventoryTextField.getText() + "')";
+        Connection con = DbConnectionActor.connect();
+        String sql = "INSERT INTO Products(ProductName, OldPrice, NewPrice, Inventory) VALUES('" + productNameTextField.getText()
+                + "','" + oldPriceTextField.getText() + "','" + newPriceTextField.getText() + "','" + inventoryTextField.getText() + "')";
         PreparedStatement ps;
         try {
             ps = con.prepareStatement(sql);
@@ -147,9 +146,9 @@ public class ProductUpdateController implements Initializable {
         showProducts();
     }
 
-    private void updateOperation() {
-        Connection con = DbConnection.connect();
-        String sql = "UPDATE Products SET  NewPrice = " + newPriceTextField.getText() + " , Inventory = '" + inventoryTextField + "' WHERE ProductName = '" + productNameTextField.getText() + "'";
+    private void edit() {
+        Connection con = DbConnectionActor.connect();
+        String sql = "UPDATE Products SET OldPrice = " + oldPriceTextField.getText() + " , NewPrice = " + newPriceTextField.getText() + " , Inventory = " + inventoryTextField.getText() + " WHERE ProductName = '" + productNameTextField.getText() + "'";
         PreparedStatement ps;
         try {
             ps = con.prepareStatement(sql);
@@ -158,10 +157,55 @@ public class ProductUpdateController implements Initializable {
             e.printStackTrace();
         }
         showProducts();
+
+        ArrayList<Integer> Values = new ArrayList<>();
+        Values.add(Integer.valueOf(newPriceTextField.getText()));
+        Values.add(Integer.valueOf(oldPriceTextField.getText()));
+        Values.add(Integer.valueOf(inventoryTextField.getText()));
+
+        ProductPriceHash.put(productNameTextField.getText(), Values);
+    }
+    private void controlOperation() {
+        ActorSystem<ControlActor.Command> Terminal = ActorSystem.create(ControlActor.create(), "ControlActor");
+        CompletionStage<HashMap> productUpdates = AskPattern.ask(Terminal,
+                (me) -> new ControlActor.InitialCommand(me, ProductPriceHash),
+                Duration.ofSeconds(80000),
+                Terminal.scheduler());
+        productUpdates.whenComplete(
+                (reply, failure) -> {
+                    if (reply != null) {
+                        System.out.println("Operation Successful");
+                    } else {
+                        System.out.println("No response");
+                    }
+                }
+        );
+    }
+    /*HashMap<String, ArrayList<Integer>> HashFromControl;
+
+    public void setHashFromControl(HashMap<String, ArrayList<Integer>> hashFromControl) {
+        HashFromControl = hashFromControl;
     }
 
-    @FXML
-    private void openShelfDisplayView() throws IOException {
+    public void createDisplays() {
+        String Product;
+        String NewPrice;
+        String OldPrice;
+        for (Map.Entry<String, ArrayList<Integer>> mapElement : HashFromControl.entrySet()) {
+            Product = mapElement.getKey().toString();
+            NewPrice = mapElement.getValue().get(0).toString();
+            OldPrice = mapElement.getValue().get(1).toString();
+            try {
+                openShelfDisplayView(Product,NewPrice,OldPrice);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Deprecated
+    private void openShelfDisplayView(String Product, String NewPrice, String OldPrice) throws IOException {
+        ShelfDisplayController shelf = new ShelfDisplayController();
         Stage shelfDisplayStage = new Stage();
         Parent root = FXMLLoader.load(getClass().getResource("shelfDisplay.fxml"));
         shelfDisplayStage.setScene(new Scene(root, 800, 600));
@@ -169,7 +213,10 @@ public class ProductUpdateController implements Initializable {
         Image icon = new Image(loginImageFile.toURI().toString());
         shelfDisplayStage.getIcons().add(icon);
         shelfDisplayStage.show();
-        Stage stage = (Stage) clearButton.getScene().getWindow();
+        shelf.setTextProductNameLabel(Product);
+        shelf.setTextNewPriceDisplayLabel(NewPrice);
+        shelf.setTextOldPriceDisplayLabel(OldPrice);
+        Stage stage = (Stage) saveButton.getScene().getWindow();
         stage.close();
-    }
+    }*/
 }

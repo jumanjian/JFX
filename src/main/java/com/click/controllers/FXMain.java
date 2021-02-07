@@ -1,6 +1,5 @@
 package com.click.controllers;
 
-import akka.actor.typed.ActorSystem;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -10,22 +9,11 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
 import java.io.File;
-/*
-public class TerminalMain {
-    public static void main(String[] args) {
-        //LoginScreen loginScreen= new LoginScreen();
-        //loginScreen.start(null);
-        ActorSystem<LoginActor.Command> userLogin = ActorSystem.create(LoginActor.create(), "LoginActor");
-        userLogin.tell(new LoginActor.InitialCommand());
-    }
-
-}*/
 
 public class FXMain extends Application{
     public static void main(String[] args) {
        launch(args);
     }
-
     @Override
     public void start(Stage primaryStage) throws Exception {
         Parent root = FXMLLoader.load(getClass().getResource("login.fxml"));

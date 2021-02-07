@@ -36,4 +36,5 @@ public class ProductModel {
     public Integer getInventory() {
         return Inventory;
     }
+
 }
