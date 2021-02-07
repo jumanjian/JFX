@@ -6,14 +6,10 @@ import akka.actor.typed.javadsl.AbstractBehavior;
 import akka.actor.typed.javadsl.ActorContext;
 import akka.actor.typed.javadsl.Behaviors;
 import akka.actor.typed.javadsl.Receive;
-import com.click.controllers.ControlActor;
-import org.apache.commons.collections.MultiMap;
 
 import javax.swing.*;
 import java.awt.*;
 import java.io.Serializable;
-import java.lang.reflect.Array;
-import java.util.Random;
 
 public class DisplayActor extends AbstractBehavior<DisplayActor.Command> {
     private JPanel mainPanel;
@@ -33,9 +29,9 @@ public class DisplayActor extends AbstractBehavior<DisplayActor.Command> {
     private void displayFrame(String ProductName) {
         JFrame displayFrame = new JFrame();
         displayFrame.setTitle(ProductName);
-        displayFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        displayFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         displayFrame.setVisible(true);
-        //displayFrame.setSize(200, 200);
+        displayFrame.setSize(800, 700);
         displayFrame.getContentPane().setBackground(new Color(248, 248, 255));
         displayFrame.pack();
 
@@ -51,12 +47,12 @@ public class DisplayActor extends AbstractBehavior<DisplayActor.Command> {
                     if (r.nextInt(1) == 1 ){
 
                     }*/
-                    displayFrame(command.getProductName());
+                    displayFrame(command.getLocationName());
 
                     lblOldPrice.setText(command.getOldPrice().toString());
                     lblNewPrice.setText(command.getNewPrice().toString());
                     lblProductName.setText(command.getProductName());
-                    command.getControl().tell(new ControlActor.DisplayActorReply(getContext().getSelf(),"Price Displayed Successfully"));
+                    command.getControl().tell(new LocationActor.DisplayActorReply(getContext().getSelf(), "Price Displayed Successfully in " + command.getLocationName()));
                     getContext().getLog().debug("Display actor running");
                     return this;
                 })
@@ -68,19 +64,22 @@ public class DisplayActor extends AbstractBehavior<DisplayActor.Command> {
 
     public static class NewPriceCommand implements Command {
         private static final long serialVersionUID = 1L;
-        private final ActorRef<ControlActor.Command> Control;
+        private final ActorRef<LocationActor.Command> Control;
         private final String ProductName;
         private final Integer NewPrice;
         private final Integer OldPrice;
+        private final String LocationName;
 
-        public NewPriceCommand(ActorRef<ControlActor.Command> control, String productName, Integer newPrice, Integer oldPrice) {
+
+        public NewPriceCommand(ActorRef<LocationActor.Command> control, String productName, Integer newPrice, Integer oldPrice, String locationName) {
             Control = control;
             ProductName = productName;
             NewPrice = newPrice;
             OldPrice = oldPrice;
+            LocationName = locationName;
         }
 
-        public ActorRef<ControlActor.Command> getControl() {
+        public ActorRef<LocationActor.Command> getControl() {
             return Control;
         }
 
@@ -95,5 +94,7 @@ public class DisplayActor extends AbstractBehavior<DisplayActor.Command> {
         public Integer getOldPrice() {
             return OldPrice;
         }
+
+        public String getLocationName() { return LocationName;}
     }
 }

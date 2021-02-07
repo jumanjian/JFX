@@ -11,42 +11,37 @@
          <AnchorPane layoutX="112.0" layoutY="76.0">
             <Label layoutX="57.0" layoutY="113.0" prefHeight="18.0" prefWidth="88.0" text="Was" textFill="RED">
                <font>
-                  <Font name="Segoe UI Italic" size="36.0"/>
+                  <Font name="Segoe UI Italic" size="36.0" />
                </font>
             </Label>
-            <Label alignment="CENTER" contentDisplay="CENTER" layoutX="191.0" layoutY="113.0" prefHeight="18.0"
-                   prefWidth="88.0" text="Ksh" textFill="RED">
+            <Label alignment="CENTER" contentDisplay="CENTER" layoutX="191.0" layoutY="113.0" prefHeight="18.0" prefWidth="88.0" text="Ksh" textFill="RED">
                <font>
-                  <Font name="Segoe UI Italic" size="36.0"/>
+                  <Font name="Segoe UI Italic" size="36.0" />
                </font>
             </Label>
-            <Label fx:id="oldPriceDisplayLabel" layoutX="280.0" layoutY="113.0" prefHeight="18.0" prefWidth="88.0"
-                   text="300" textFill="RED">
+            <Label fx:id="oldPriceDisplayLabel" layoutX="280.0" layoutY="113.0" prefHeight="18.0" prefWidth="88.0" text="300" textFill="RED">
                <font>
-                  <Font name="Segoe UI Italic" size="36.0"/>
+                  <Font name="Segoe UI Italic" size="36.0" />
                </font>
             </Label>
             <Label layoutY="197.0" prefHeight="78.0" prefWidth="148.0" text="Now" textFill="#12c006">
                <font>
-                  <Font name="Segoe UI Italic" size="64.0"/>
+                  <Font name="Segoe UI Italic" size="64.0" />
                </font>
             </Label>
-            <Label alignment="CENTER" contentDisplay="CENTER" layoutX="147.0" layoutY="197.0" prefHeight="78.0"
-                   prefWidth="131.0" text="Ksh" textFill="#12c006">
+            <Label alignment="CENTER" contentDisplay="CENTER" layoutX="147.0" layoutY="197.0" prefHeight="78.0" prefWidth="131.0" text="Ksh" textFill="#12c006">
                <font>
-                  <Font name="Segoe UI Italic" size="64.0"/>
+                  <Font name="Segoe UI Italic" size="64.0" />
                </font>
             </Label>
-            <Label fx:id="newPriceDisplayLabel" layoutX="283.0" layoutY="197.0" prefHeight="78.0" prefWidth="132.0"
-                   text="250" textFill="#12c006">
+            <Label fx:id="newPriceDisplayLabel" layoutX="283.0" layoutY="197.0" prefHeight="78.0" prefWidth="132.0" text="250" textFill="#12c006">
                <font>
-                  <Font name="Segoe UI Italic" size="64.0"/>
+                  <Font name="Segoe UI Italic" size="64.0" />
                </font>
             </Label>
-            <Label fx:id="productNameLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="29.0"
-                   text="Product Name" textFill="#7e7e7e">
+            <Label fx:id="productNameLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="29.0" text="Product Name" textFill="#7e7e7e">
                <font>
-                  <Font size="50.0"/>
+                  <Font size="50.0" />
                </font>
             </Label>
          </AnchorPane>

@@ -1,4 +1,4 @@
-package com.click.models;
+package com.click.controllers;
 
 
 public class ProductModel {

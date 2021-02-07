@@ -2,25 +2,20 @@ package com.click.controllers;
 
 import akka.actor.typed.ActorSystem;
 import akka.actor.typed.javadsl.AskPattern;
+import com.click.models.ControlActor;
 import com.click.models.DbConnectionActor;
-import com.click.models.ProductModel;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
-import javafx.stage.Stage;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
 import java.sql.*;
 import java.time.Duration;
@@ -30,7 +25,10 @@ import java.util.ResourceBundle;
 import java.util.concurrent.CompletionStage;
 
 public class ProductUpdateController implements Initializable {
-    HashMap<String, ArrayList<Integer>> ProductPriceHash = new HashMap<>();
+    private HashMap<String, ArrayList<Integer>> ProductPriceHash = new HashMap<>();
+    String SelectedLocation;
+    boolean isGlobal = false;
+
     @FXML
     private ImageView bannerImageView;
     @FXML
@@ -47,6 +45,8 @@ public class ProductUpdateController implements Initializable {
     private Button updateButton;
     @FXML
     private Button editButton;
+    @FXML
+    private ChoiceBox locationChoiceBox;
     @FXML
     private RadioButton isGlobalRadiobutton;
     @FXML
@@ -69,7 +69,14 @@ public class ProductUpdateController implements Initializable {
         } else if (actionEvent.getSource() == editButton) {
             edit();
         } else if (actionEvent.getSource() == updateButton) {
+            SelectedLocation = locationChoiceBox.getValue().toString();
+            System.out.println(SelectedLocation);
+           // assert productNameTextField.hasProperties() != false;
             controlOperation();
+        }else if (actionEvent.getSource()==isGlobalRadiobutton){
+            isGlobal = true;
+            locationChoiceBox.setDisable(true);
+            SelectedLocation = null;
         }
     }
 
@@ -88,6 +95,8 @@ public class ProductUpdateController implements Initializable {
         File loginImageFile = new File("images/banner.png");
         Image loginImage = new Image(loginImageFile.toURI().toString());
         bannerImageView.setImage(loginImage);
+        locationChoiceBox.setValue("Nairobi");
+        locationChoiceBox.setItems(getLocations());
     }
 
     private ObservableList<ProductModel> getProductsList() {
@@ -118,6 +127,60 @@ public class ProductUpdateController implements Initializable {
             }
         }
         return productsList;
+    }
+
+    private ObservableList<String> getLocations() {
+        ObservableList<String> locationsList = FXCollections.observableArrayList();
+        Connection con = DbConnectionActor.connect();
+        String sql = "SELECT LocationName FROM Locations";
+        Statement st = null;
+        ResultSet rs = null;
+        try {
+            st = con.createStatement();
+            rs = st.executeQuery(sql);
+            while (rs.next()) {
+                locationsList.add(rs.getString(1));
+            }
+        } catch (SQLException e) {
+            System.out.println(e.toString());
+        } finally {
+            try {
+                assert rs != null;
+                rs.close();
+                st.close();
+                con.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return locationsList;
+    }
+
+    private ArrayList<String> allLocations() {
+        ArrayList<String> allLocationsList = new ArrayList<>();
+        Connection con = DbConnectionActor.connect();
+        String sql = "SELECT LocationName FROM Locations";
+        Statement st = null;
+        ResultSet rs = null;
+        try {
+            st = con.createStatement();
+            rs = st.executeQuery(sql);
+            while (rs.next()) {
+                allLocationsList.add(rs.getString(1));
+            }
+        } catch (SQLException e) {
+            System.out.println(e.toString());
+        } finally {
+            try {
+                assert rs != null;
+                rs.close();
+                st.close();
+                con.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return allLocationsList;
     }
 
     private void showProducts() {
@@ -165,10 +228,26 @@ public class ProductUpdateController implements Initializable {
 
         ProductPriceHash.put(productNameTextField.getText(), Values);
     }
+
     private void controlOperation() {
         ActorSystem<ControlActor.Command> Terminal = ActorSystem.create(ControlActor.create(), "ControlActor");
+        if (isGlobal == true){
+            CompletionStage<HashMap> productUpdates = AskPattern.ask(Terminal,
+                    (me) -> new ControlActor.InitialGlobalCommand(me, ProductPriceHash, allLocations()),
+                    Duration.ofSeconds(80000),
+                    Terminal.scheduler());
+            productUpdates.whenComplete(
+                    (reply, failure) -> {
+                        if (reply != null) {
+                            System.out.println("Operation Successful");
+                        } else {
+                            System.out.println("No response");
+                        }
+                    }
+            );
+        }else{
         CompletionStage<HashMap> productUpdates = AskPattern.ask(Terminal,
-                (me) -> new ControlActor.InitialCommand(me, ProductPriceHash),
+                (me) -> new ControlActor.InitialCommand(me, ProductPriceHash, SelectedLocation),
                 Duration.ofSeconds(80000),
                 Terminal.scheduler());
         productUpdates.whenComplete(
@@ -179,8 +258,10 @@ public class ProductUpdateController implements Initializable {
                         System.out.println("No response");
                     }
                 }
-        );
+        );}
     }
+}
+
     /*HashMap<String, ArrayList<Integer>> HashFromControl;
 
     public void setHashFromControl(HashMap<String, ArrayList<Integer>> hashFromControl) {
@@ -219,4 +300,4 @@ public class ProductUpdateController implements Initializable {
         Stage stage = (Stage) saveButton.getScene().getWindow();
         stage.close();
     }*/
-}
+
